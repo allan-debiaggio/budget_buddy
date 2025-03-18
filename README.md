@@ -21,7 +21,7 @@ Password needs to be secured. Conditions (at least) :
 - One lowercase letter
 - One special character
 - One number
-- At least 10 characters total
+- At least 10 characters total  
 A hashing function is welcome.
 
 User can :

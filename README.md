@@ -47,3 +47,10 @@ Add page with global view and some important information first, such as :
   
 Create one or more banker accounts. Each banker can manage his client portfolio and realize
 the operation in his place.
+
+### Database name : bank
+
+- Database creation in MySQL 
+- Tables creation in MySQL
+- Start python code to interact with database
+- Start python code for user and password

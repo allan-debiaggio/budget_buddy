@@ -12,7 +12,7 @@ root.geometry("1366x768")
 root.resizable(False, False) 
 
 # Loading background image
-background_image = Image.open("asset/screen_connect.png")
+background_image = Image.open("asset/register_background.png")
 background_photo = ctk.CTkImage(light_image=background_image, dark_image=background_image, size=(1366, 768))
 
 # Creating label for background image

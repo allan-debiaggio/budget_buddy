@@ -97,7 +97,9 @@ fig = Figure(figsize=(4, 2.5), dpi=100)
 fig.patch.set_alpha(0.0)
 ax = fig.add_subplot(111)
 ax.set_facecolor('none')
-ax.pie(sizes, labels=labels, autopct="%1.1f%%")
+wedges, texts, autotexts = ax.pie(sizes, labels=labels, autopct="%1.1f%%",
+                                 wedgeprops={'edgecolor': 'black',
+                                           'linewidth': 1.5})         
 
 # Tkinter integration
 canvas = FigureCanvasTkAgg(fig, master=pie_frame)

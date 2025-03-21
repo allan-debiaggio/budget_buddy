@@ -30,8 +30,8 @@ def on_filter_click():
     # Add transaction filtering logic here
 
 def on_transaction_click():
-    print("Transaction button clicked!")
-    # Add transaction display logic here
+    selected_operation = operation_combobox.get()
+    print(f"Selected operation: {selected_operation}")
 
 # Adding Balance frame
 balance_frame = ctk.CTkFrame(
@@ -55,16 +55,25 @@ history_frame = ctk.CTkFrame(
 )
 history_frame.place(x=759, y=39)
 
-# Operations button
-transaction_button = ctk.CTkButton(
+# Remplacer le bouton Operations par un ComboBox
+operation_values = ["Deposit", "Withdrawal", "Transaction"]
+operation_combobox = ctk.CTkComboBox(
     root,
     width=272,
     height=77,
-    text="Operations",
-    fg_color="#2C2C2C", 
-    command=on_transaction_click,
+    values=operation_values,
+    bg_color="transparent",
+    fg_color="#2C2C2C",
+    button_color="#2C2C2C",
+    button_hover_color="#1C1C1C",
+    border_color="#2C2C2C",
+    corner_radius=10,
+    font=("Arial", 14),
+    dropdown_font=("Arial", 14),
+    state="readonly"
 )
-transaction_button.place(x=216, y=328)
+operation_combobox.place(x=216, y=328)
+operation_combobox.set("Select Operation")
 
 # Filter button
 filter_button = ctk.CTkButton(

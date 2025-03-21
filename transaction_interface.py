@@ -185,16 +185,16 @@ enter_button = ctk.CTkButton(
 enter_button.place(x=740, y=591)
 
 # Back button
-connect_button = ctk.CTkButton(
+back_button = ctk.CTkButton(
     root,
     width=98.66,
     height=64,
-    text="Connect",
+    text="Back",
     corner_radius=10,
     bg_color="#4D4D4D",
     fg_color="#2C2C2C",
     command=on_connect_click  # Link function to button
 )
-connect_button.place(x=526, y=591)
+back_button.place(x=526, y=591)
 
 root.mainloop()

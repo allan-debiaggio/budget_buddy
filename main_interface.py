@@ -26,8 +26,49 @@ title_label = ctk.CTkLabel(root, text="Hello {username}", font=("Arial", 26), bg
 title_label.place(x=27, y=34)
 
 def on_filter_click():
-    print("Filter button clicked!")
-    # Add transaction filtering logic here
+    selected_filter = filter_combobox.get()
+    if selected_filter == "Category":
+        category_window = ctk.CTkToplevel(root)
+        category_window.title("Select Category")
+        category_window.geometry("300x400")
+        
+        category_combobox = ctk.CTkComboBox(
+            category_window,
+            width=200,
+            height=64,
+            values=category_values,
+            bg_color="transparent",
+            fg_color="#2C2C2C",
+            button_color="#2C2C2C",
+            button_hover_color="#1C1C1C",
+            border_color="#2C2C2C",
+            corner_radius=10,
+            font=("Arial", 14),
+            dropdown_font=("Arial", 14),
+            state="readonly"
+        )
+        category_combobox.pack(pady=20)
+        category_combobox.set("Select Category")
+        
+        def apply_category():
+            selected_category = category_combobox.get()
+            print(f"Filtering by Category: {selected_category}")
+            category_window.destroy()
+            
+        apply_button = ctk.CTkButton(
+            category_window,
+            text="Apply",
+            command=apply_category,
+            width=100,
+            height=32,
+            fg_color="#2C2C2C"
+        )
+        apply_button.pack(pady=10)
+    
+    elif selected_filter == "Date Range":
+        print("Opening date range picker...")
+    else:
+        print(f"Filtering by: {selected_filter}")
 
 def on_transaction_click():
     selected_operation = operation_combobox.get()
@@ -75,16 +116,86 @@ operation_combobox = ctk.CTkComboBox(
 operation_combobox.place(x=216, y=328)
 operation_combobox.set("Select Operation")
 
-# Filter button
-filter_button = ctk.CTkButton(
+# Define filter options
+filter_values = [
+    "Date",
+    "Category",  # This will have sub-options
+    "Type",
+    "Ascending",
+    "Descending",
+    "Date Range"
+]
+
+# Category sub-options remain the same
+category_values = [
+    "Housing",
+    "Leisure & Entertainment",
+    "Other",
+    "Food",
+    "Energy"
+]
+
+def on_filter_select(choice):
+    if choice == "Category":
+        category_window = ctk.CTkToplevel(root)
+        category_window.title("Select Category")
+        category_window.geometry("300x400")
+        
+        category_combobox = ctk.CTkComboBox(
+            category_window,
+            width=200,
+            height=64,
+            values=category_values,
+            bg_color="transparent",
+            fg_color="#2C2C2C",
+            button_color="#2C2C2C",
+            button_hover_color="#1C1C1C",
+            border_color="#2C2C2C",
+            corner_radius=10,
+            font=("Arial", 14),
+            dropdown_font=("Arial", 14),
+            state="readonly"
+        )
+        category_combobox.pack(pady=20)
+        category_combobox.set("Select Category")
+        
+        def apply_filter():
+            selected_category = category_combobox.get()
+            if selected_category != "Select Category":
+                print(f"Filtering by category: {selected_category}")
+            category_window.destroy()
+        
+        apply_button = ctk.CTkButton(
+            category_window,
+            text="Apply",
+            command=apply_filter,
+            width=100,
+            height=32,
+            fg_color="#2C2C2C"
+        )
+        apply_button.pack(pady=10)
+    else:
+        print(f"Selected filter: {choice}")
+
+# Create filter combobox
+filter_combobox = ctk.CTkComboBox(
     root,
-    width=98.66,
+    width=200,
     height=64,
-    text="Filter",
+    values=filter_values,
+    bg_color="transparent",
     fg_color="#2C2C2C",
-    command=on_filter_click, 
+    button_color="#2C2C2C",
+    button_hover_color="#1C1C1C",
+    border_color="#2C2C2C",
+    corner_radius=10,
+    font=("Arial", 14),
+    dropdown_font=("Arial", 14),
+    state="readonly",
+    command=on_filter_select
 )
-filter_button.place(x=617, y=37)
+filter_combobox.place(x=550, y=37)
+filter_combobox.set("Select Filter")
 
 # Pie chart data
 labels = ["Leisure & Entertainment", "Housing", "Energy", "Food", "Others"]

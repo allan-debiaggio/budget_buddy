@@ -1,18 +1,16 @@
 import bcrypt
 import os
 from dotenv import load_dotenv
-from variable_test import get_env_variable
+from database_test import ManageDatabase
 
-class User(): # fille de ManageDatabase
+class User(ManageDatabase): 
     def __init__(self, first_name, last_name, email, password):
+        super().__init__("bank")
         self.__first_name = first_name
         self.__last_name = last_name
         self.__email = email
         self.__password = self.hash_password(password)
-        self.__id = None # id of the user in the table user (utiliser la méthode read de la classe ManageDatabase pour le récupérer)
-
-    # faut-il une classe qui récupère les information de l'utilisateur ?
-    # ou est-ce que la classe User doit le faire ?
+        self.__id = self.get_user_id() 
 
 
     # Getters
@@ -40,56 +38,108 @@ class User(): # fille de ManageDatabase
     @get_first_name.setter
     def set_first_name(self, first_name):
         self.__first_name = first_name
-        # update the database?
+        self.update_user_field("first_name", self.get_first_name)
 
     @get_last_name.setter 
     def set_last_name(self, last_name):
         self.__last_name = last_name
-        # update the database? 
+        self.update_user_field("last_name", self.get_last_name)
 
     @get_email.setter
     def set_email(self, email):
         self.__email = email
-        # update the database?
+        self.update_user_field("email", self.get_email)
 
     @get_password.setter
     def set_password(self, password):
         hash_password = self.hash_password(password)
         self.__password = hash_password
-        # update the database?
+        self.update_user_field("password", self.get_password)
+
+    def update_user_field(self, field, value):
+        """update a specific field in the table account"""
+        self.connect_database()
+        query_type = "alter"
+        query = f"UPDATE account SET {field} = %s WHERE id_account = %s"
+        values = (value, self.get_id())
+        self.execute_query(query_type, query, values)
+        self.close()
+
+    def get_user_id(self):
+        """return the id of the user based on the email"""
+        self.connect_database()
+        query_type = "read"
+        query = "SELECT id_account FROM account WHERE email = %s"
+        value = (self.get_email(),)
+        result = self.execute_query(query_type, query, value)
+        self.close()
+
+        return result[0][0]
 
     def insert_new_user(self):
         """add a new user in the table user, with password coded"""
-        pass # pour inserer dans la table user 
+        self.connect_database()
+        query_type = "insert"
+        query = "INSERT INTO account(first_name, last_name, email, password) VALUES (%s, %s, %s, %s)"
+        values = (self.get_first_name(), self.get_last_name(), self.get_email(), self.get_password())
+        self.execute_query(query_type, query, values)
+        self.close()
+        self.__id = self.get_user_id()
 
     def hash_password(self, password):
-        """hash the password of the user with bcrypt and a pepper"""
-        # attention pour le hachage, il faut que password soit en string!!
-        pepper = get_env_variable("PEPPER")
+        """hash the password of the user with bcrypt and a pepper
+        password = str"""
+        pepper = self.get_env_variable("PEPPER")
         peppered_password = password + pepper
         salt = bcrypt.gensalt()
         hashed = bcrypt.hashpw(peppered_password.encode(), salt)
         return hashed.decode()
 
-    def check_password(self, input_password):
+    def check_password(self, input_password, input_id):
         """check if the password is correct"""
-        pepper = get_env_variable("PEPPER")
+        self.connect_database()
+
+        query_type = "read"
+        query = "SELECT password FROM account WHERE id_account = %s"
+        value = (input_id, )
+        result = self.execute_query(query_type, query, value)
+        self.close()
+
+        if not result:
+            return False
+        
+        storred_password = result[0][0]
+        pepper = self.get_env_variable("PEPPER")
         peppered_input_password = input_password + pepper
-        check = bcrypt.checkpw(peppered_input_password.encode(), self.get_password.encode())
+
+        check = bcrypt.checkpw(peppered_input_password.encode(), storred_password.encode())
         return check
 
-    def check_id(self, input_id):
-        """check if the id of the user is correct"""
-        # il faut pourvoir récupérer l'id de l'utilisateur dans la database 
-        # identifiant a plusieurs paramètres, genre input du last_name et de id, pour affiner la recherche
-        return input_id == self.get_id()
+    def return_client_information(self, id_user):
+        """Return the first name and last name of a user based on the id"""
+        self.connect_database()
+        query_type = "read"
+        query = f"SELECT first_name, last_name FROM account WHERE id_account = %s"
+        value = (id_user, )
+        result = self.execute_query(query_type, query, value)
+
+        if not result:
+            self.close()
+            raise ValueError(f"The user with id '{id_user}' does not exist in the database")
         
+        client = {
+            "id": id_user,
+            "first_name": result[0][0],
+            "last_name": result[0][1]
+        }
+        self.close()
+        return client
+
+
     def __str__(self):
         return f"{self.__first_name} {self.__last_name} {self.__email} {self.__password}"
     
 
-# attention, il faut que je créer des methodes pour aller chercher les information dans la base de donnée
-# pour les mettre dans les attributs de la classe User ?
 
 def main():
     User1 = User("John", "Doe", "john.doe@gmail.com", "password")

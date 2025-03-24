@@ -3,6 +3,7 @@ from PIL import Image
 from database import ManageDatabase  # Import the ManageDatabase class
 from variable_test import get_env_variable  # Import the get_env_variable function
 import os
+import subprocess
 
 def validate_amount(P):
     # Allow empty field
@@ -111,7 +112,7 @@ reason_label.place(x=200, y=250)
 reason_entry = ctk.CTkEntry(root, width=200)
 reason_entry.place(x=200, y=280)
 
-def on_enter_click():
+def on_enter_click(main_window):
     amount = amount_entry.get()
     date = date_entry.get()
     transaction_type = type_combobox.get()
@@ -125,16 +126,17 @@ def on_enter_click():
         database=get_env_variable("DB_NAME")
     )
     db_manager.connect_database()
-    insert_query = "INSERT INTO transaction (amount, date, reason, type, id_account) VALUES (%s, %s, %s, %s, %s)"
-    db_manager.execute_query("insert", insert_query, (amount, date, reason, transaction_type, user_id))
+    insert_query = "INSERT INTO transaction (amount, date, reason, type, id_account) VALUES (%(amount)s, %(date)s, %(reason)s, %(type)s, %(user_id)s)"
+    db_manager.execute_query("insert", insert_query, {'amount': amount, 'date': date, 'reason': reason, 'type': transaction_type, 'user_id': user_id})
+    db_manager.update_balance(user_id)  # Update the balance
     db_manager.close()
     print("Transaction added")
     root.destroy()
-    # Notify main interface to refresh
-    with open("refresh.txt", "w") as f:
-        f.write("refresh")
+    main_window.destroy()
+    # Reopen the main interface
+    subprocess.Popen(["python", "main_interface.py"])
 
-enter_button = ctk.CTkButton(root, text="Enter", command=on_enter_click)
+enter_button = ctk.CTkButton(root, text="Enter", command=lambda: on_enter_click(root))
 enter_button.place(x=250, y=320)
 
 root.mainloop()

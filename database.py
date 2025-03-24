@@ -203,15 +203,19 @@ class ManageDatabase:
         else:
             raise ValueError(f"Unknown query type: {query_type}")
 
-# Example usage
-if __name__ == "__main__":
-    db_manager = ManageDatabase(host="localhost", user="your_username", password="your_password", database="bank")
-    db_manager.connect_database()
+    def update_balance(self, user_id):
+        """Calculate and update the balance in the account table"""
+        # Calculate the current balance based on all transactions
+        balance_query = """
+            SELECT SUM(CASE WHEN type = 'Deposit' THEN amount ELSE -amount END) AS balance
+            FROM transaction
+            WHERE id_account = %s
+        """
+        balance_result = self.read(balance_query, (user_id,))
+        current_balance = balance_result[0][0] if balance_result[0][0] is not None else 0.0
 
-    # Example dynamic queries
-    # db_manager.execute_query("insert", "INSERT INTO table_name (column1, column2) VALUES (%s, %s)", (value1, value2))
-    # results = db_manager.execute_query("read", "SELECT * FROM table_name")
-    # db_manager.execute_query("delete", "DELETE FROM table_name WHERE condition", (value,))
-    # db_manager.execute_query("alter", "ALTER TABLE table_name ADD column_name datatype")
-
-    db_manager.close()
+        # Update the balance in the account table
+        update_query = "UPDATE account SET balance = %s WHERE id_account = %s"
+        self.cursor.execute(update_query, (current_balance, user_id))
+        self.connection.commit()
+        print("Balance updated")

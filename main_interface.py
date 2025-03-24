@@ -152,15 +152,11 @@ def on_filter_click():
     order_by = filter_var.get()
     update_balance_and_history(order_by)
 
-def on_transaction_click():
+def on_transaction_click(main_window):
     print("Transaction button clicked!")
     subprocess.Popen(["python", "transaction_interface.py"]).wait()
-    # Save user ID to environment variable
-    os.environ["USER_ID"] = str(user_id)
-    # Destroy the current window
-    root.destroy()
-    # Reopen the main interface
-    os.system("python main_interface.py")
+    main_window.destroy()
+    subprocess.Popen(["python", "main_interface.py"])
 
 def on_logout_click():
     print("Logout button clicked!")
@@ -174,7 +170,7 @@ transaction_button = ctk.CTkButton(
     height=77,
     text="Operations",
     fg_color="#2C2C2C", 
-    command=on_transaction_click,
+    command=lambda: on_transaction_click(root),
 )
 transaction_button.place(x=216, y=328)
 
